@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Banner</title>
+<style>
+  :root { --paper:#EEF1F4; --ink:#101B26; --line:#C5CED8; --head:#DCE3EA; --mark:#FFD43B; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  html, body { background:#EEF1F4; overflow:hidden; }
+  #b { position:absolute; top:0; left:0; transform-origin:0 0; transform:scale(2); background:var(--paper); color:var(--ink); overflow:hidden; display:flex; }
+  .g { display:grid; flex:none; border-top:1px solid var(--ink); border-left:1px solid var(--line); }
+  .g > div { border-right:1px solid var(--line); border-bottom:1px solid var(--line); }
+  .h { background:var(--head); display:flex; align-items:center; justify-content:center; font-family:"Bahnschrift","Segoe UI",sans-serif; font-weight:700; }
+  .r { background:var(--head); display:flex; align-items:center; justify-content:center; font-family:"Segoe UI",sans-serif; color:#51606E; }
+  .c { background:#F8FAFB; }
+  .c.on { background:var(--mark); border-bottom-color:var(--ink); }
+  .t { font-family:"Bahnschrift","Segoe UI",sans-serif; font-weight:700; line-height:.95; letter-spacing:-.01em; }
+  .s { font-family:"Segoe UI",sans-serif; line-height:1.25; }
+</style>
+</head>
+<body>
+<div id="b"></div>
+<script>
+  var q = new URLSearchParams(location.search);
+  var W = +q.get('w'), H = +q.get('h'), mode = q.get('mode');
+  var marks = {'0-1':1,'1-4':1,'2-2':1,'2-6':1,'3-0':1,'4-5':1};
+  var days = ['L','M','X','J','V'];
+
+  function grid(gw, gh, hdr, labW) {
+    var cellH = (gh - hdr) / 8;
+    var h = '<div class="g" style="width:'+gw+'px;height:'+gh+'px;grid-template-columns:'+(labW?labW+'px ':'')+'repeat(5,1fr);grid-template-rows:'+(hdr?hdr+'px ':'')+'repeat(8,'+cellH+'px)">';
+    if (hdr) {
+      if (labW) h += '<div class="h"></div>';
+      days.forEach(function(d){ h += '<div class="h" style="font-size:'+Math.max(7,hdr*.6)+'px">'+d+'</div>'; });
+    }
+    for (var r = 0; r < 8; r++) {
+      if (labW) h += '<div class="r" style="font-size:'+Math.max(6,cellH*.5)+'px">'+(9+r)+'</div>';
+      for (var c = 0; c < 5; c++) h += '<div class="c'+(marks[c+'-'+r]?' on':'')+'"></div>';
+    }
+    return h + '</div>';
+  }
+  function title(sz, br) { return '<div class="t" style="font-size:'+sz+'px">Recupera 6 horas'+(br?'<br>':' ')+'a la semana</div>'; }
+  function sub(sz, mt) { return '<div class="s" style="font-size:'+sz+'px;margin-top:'+mt+'px">Las 12 fórmulas de Excel que tu jefe cree que son magia</div>'; }
+
+  var b = document.getElementById('b'), html = '';
+  b.style.width = W+'px'; b.style.height = H+'px';
+  if (mode === 'stack') {
+    var p = Math.round(W*0.05), gh = +q.get('gh'), hdr = +q.get('hdr'), lab = +q.get('lab');
+    b.style.flexDirection = 'column'; b.style.padding = p+'px';
+    html = grid(W-2*p, gh, hdr, lab) + '<div style="margin-top:'+(p*0.8)+'px">' + title(+q.get('ts'), +q.get('br')) + sub(+q.get('ss'), p*0.6) + '</div>';
+  } else if (mode === 'side') {
+    var p2 = Math.round(H*0.06), gw = Math.round(W*0.44);
+    b.style.padding = p2+'px'; b.style.gap = Math.round(W*0.05)+'px';
+    html = grid(gw, H-2*p2, 14, 14) + '<div style="display:flex;flex-direction:column;justify-content:center;flex:1">' +
+      '<div class="t" style="font-size:'+(W*0.078)+'px">Recupera<br>6 horas<br>a la<br>semana</div>' + sub(W*0.034, 10) + '</div>';
+  } else {
+    var p3 = Math.round(H*0.09), gh3 = H-2*p3, gw3 = Math.round(gh3*1.0);
+    b.style.padding = p3+'px'; b.style.alignItems = 'center'; b.style.gap = Math.round(H*0.2)+'px';
+    html = grid(gw3, gh3, 0, 0) + '<div>' + title(H*0.36, 0) + sub(H*0.15, H*0.05) + '</div>';
+  }
+  b.innerHTML = html;
+</script>
+</body>
+</html>
